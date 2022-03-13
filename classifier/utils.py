@@ -3,8 +3,7 @@ from sklearn.utils import resample
 import pandas as pd
 
 
-class PrepareDataset:
-    # TODO: проверка sampling_type
+class DatasetPreparator:
     # TODO: разделить класс на utils от которого будут наследоваться класс для подготовки датасета тренировки и предикта
     def __init__(self, data, type, train_size=0.67, sampling_type=None):
         # type – for train or for classify?
@@ -20,7 +19,8 @@ class PrepareDataset:
                 return 0
         if self.type == 'train' and 'mark' not in dataset.columns:
             return 0
-        # TODO: если мусор в датасете (3 в mark итд)
+        elif self.type == 'train' and set(dataset['mark']).intersection({0, 1, 2}):
+            return 0
         return 1
 
     @staticmethod
@@ -61,9 +61,9 @@ class PrepareDataset:
         elif isinstance(self.data, pd.DataFrame):
             dataset = self.data.copy()
         else:
-            raise Exception(1) # TODO: exception
+            raise Exception("Invalid data format")
         if not self.is_valid_data(dataset):
-            pass # TODO: raise exception
+            raise Exception("Invalid data format")
         for col in ['pos_1', 'pos_2']:
             dataset[col] = dataset[col].astype(str).astype('category').cat.codes
         if self.type == 'train':

@@ -7,6 +7,20 @@ from .pos_tagger import PosTagger
 from .vectorizer import Vectorizer
 
 
+# TODO: Наследовани Reader и Prepair от этого
+class Dataset:
+    def __init(self, path_to_dataset):
+        self.path_to_dataset = path_to_dataset
+
+    @staticmethod
+    def is_valid_data(dataset):
+        if 'sense_1' not in dataset.columns or 'sense_2' not in dataset.columns:
+            return 0
+        elif len(dataset) == 0:
+            return 0
+        return 1
+
+
 class DatasetReader:
     def __init__(self, path_to_dataset):
         self.path_to_dataset = path_to_dataset
@@ -27,11 +41,11 @@ class DatasetReader:
             if self.is_valid_data(data):
                 result_df = result_df.append(data)
             else:
-                print(f'Dataset in path {path} has invalid format')
+                raise Exception("Invalid data format")
         return result_df
 
 
-class DatasetPreprocessor:
+class DataPreprocessor:
     def __init__(self, dataset, path_to_model):
         self.dataset = dataset
         self.path_to_model = path_to_model

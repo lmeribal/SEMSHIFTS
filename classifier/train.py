@@ -5,17 +5,22 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics import classification_report
 import scikitplot as skplt
 import matplotlib.pyplot as plt
-from .utils import PrepareDataset
+from .utils import DatasetPreparator
+import datetime
 
 
 class TrainClassifier:
-    def __init__(self, path_to_data, iterations=350, depth=3, eval_metric='F1', l2_leaf_reg=1):
+    def __init__(self, path_to_data, model_name, iterations=350, depth=3, eval_metric='F1', l2_leaf_reg=1):
         self.path_to_data = path_to_data
         self.model = CatBoostClassifier(iterations=iterations,
                                         depth=depth,
                                         random_seed=42,
                                         eval_metric=eval_metric,
                                         l2_leaf_reg=l2_leaf_reg)
+        if model_name is None:
+            self.model_name = f'classification_model_{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}.cbm'
+        else:
+            self.model_name = model_name
 
     def evaluate(self, preds_class, true_class, preds_proba, train_data, feature_importance=True, draw_roc_auc=True):
         print("Classification report:")
@@ -35,7 +40,7 @@ class TrainClassifier:
 
     def training(self, train_size=0.67, sampling_type=None):
         # TODO:    нужно как то валидировать данные
-        dataset_preparing = PrepareDataset(path_to_data=self.path_to_data,
+        dataset_preparing = DatasetPreparator(data=self.path_to_data,
                                            type='train',
                                            train_size=train_size,
                                            sampling_type=sampling_type)
@@ -46,4 +51,4 @@ class TrainClassifier:
 
         self.evaluate(preds_class, y_test, preds_probas, X_train)
 
-        self.model.save_model('classification_model.cbm')
+        self.model.save_model(self.model_name)

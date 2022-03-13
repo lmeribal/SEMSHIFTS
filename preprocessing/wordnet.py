@@ -66,7 +66,7 @@ class WordnetFeatureExtractor:
                     tmp_arr_1.append(self.rus_wordnet_feature_extractor(word_1))
                     tmp_arr_2.append(self.rus_wordnet_feature_extractor(word_2))
                 else:
-                    pass  # TODO: raise Exception
+                    continue
             features_dict['features_1'].append([item for sublist in tmp_arr_1 for item in sublist])
             features_dict['features_2'].append([item for sublist in tmp_arr_2 for item in sublist])
         dataset['features_1'] = features_dict['features_1']
