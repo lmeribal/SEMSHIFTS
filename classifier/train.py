@@ -5,13 +5,13 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics import classification_report
 import scikitplot as skplt
 import matplotlib.pyplot as plt
-from .utils import DatasetPreparator
+from .prepare import DatasetPreparator
 import datetime
 
 
 class TrainClassifier:
     def __init__(self, path_to_data, model_name, iterations=350, depth=3, eval_metric='F1', l2_leaf_reg=1):
-        self.path_to_data = path_to_data
+        self.data = path_to_data
         self.model = CatBoostClassifier(iterations=iterations,
                                         depth=depth,
                                         random_seed=42,
@@ -40,10 +40,10 @@ class TrainClassifier:
 
     def training(self, train_size=0.67, sampling_type=None):
         # TODO:    нужно как то валидировать данные
-        dataset_preparing = DatasetPreparator(data=self.path_to_data,
-                                           type='train',
-                                           train_size=train_size,
-                                           sampling_type=sampling_type)
+        dataset_preparing = DatasetPreparator(data=self.data,
+                                              type='train',
+                                              train_size=train_size,
+                                              sampling_type=sampling_type)
         X_train, X_test, y_train, y_test = dataset_preparing.preparing()
         self.model.fit(X_train, y_train)
         preds_class = self.model.predict(X_test)

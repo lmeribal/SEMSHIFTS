@@ -1,27 +1,21 @@
 from sklearn.model_selection import train_test_split
 from sklearn.utils import resample
-import pandas as pd
+from utils.utlis import Dataset
 
 
-class DatasetPreparator:
+class DatasetPreparator(Dataset):
     # TODO: разделить класс на utils от которого будут наследоваться класс для подготовки датасета тренировки и предикта
     def __init__(self, data, type, train_size=0.67, sampling_type=None):
         # type – for train or for classify?
-        self.data = data
         self.train_size = train_size
         self.type = type
         self.sampling_type = sampling_type # up or down or None
-        self.data_columns = ['sim_feature', 'pos_1', 'pos_2', 'sim_pos', 'fuzz', 'cosine']
-
-    def is_valid_data(self, dataset):
-        for col in self.data_columns:
-            if col not in dataset.columns:
-                return 0
-        if self.type == 'train' and 'mark' not in dataset.columns:
-            return 0
-        elif self.type == 'train' and set(dataset['mark']).intersection({0, 1, 2}):
-            return 0
-        return 1
+        self.classify_data_columns = ['sim_feature', 'pos_1', 'pos_2', 'sim_pos', 'fuzz', 'cosine']
+        self.train_data_columns = self.classify_data_columns + ['mark']
+        self.available_values = {
+            'mark': [0, 1, 2]
+        }
+        super(DatasetPreparator, self).__init__(data)
 
     @staticmethod
     def get_majority_class(y_train):
@@ -52,25 +46,28 @@ class DatasetPreparator:
                                              random_state=42)
             X_train = minority_upsampled_df.append(majority_df)
         y_train = X_train['mark'].copy()
-        X_train = X_train[self.data_columns]
+        X_train = X_train[self.classify_data_columns]
         return X_train, y_train
 
     def preparing(self):
-        if isinstance(self.data, str):
-            dataset = pd.read_csv(self.data)
-        elif isinstance(self.data, pd.DataFrame):
-            dataset = self.data.copy()
-        else:
-            raise Exception("Invalid data format")
-        if not self.is_valid_data(dataset):
-            raise Exception("Invalid data format")
+        dataset = super().read_data(concat=False)
+        if self.type == 'classify':
+            if not self.is_valid_data(dataset,
+                                      column_lst=self.classify_data_columns):
+                raise Exception("Invalid data format")
+        elif self.type == 'train':
+            if not self.is_valid_data(dataset,
+                                      column_lst=self.train_data_columns,
+                                      available_values=self.available_values):
+                raise Exception("Invalid data format")
         for col in ['pos_1', 'pos_2']:
             dataset[col] = dataset[col].astype(str).astype('category').cat.codes
         if self.type == 'train':
             dataset = dataset[dataset['mark'] != 2]
-            X = dataset[self.data_columns]
+            X = dataset[self.classify_data_columns]
             Y = dataset['mark']
-            X_train, X_test, y_train, y_test = train_test_split(X, Y,
+            X_train, X_test, y_train, y_test = train_test_split(X,
+                                                                Y,
                                                                 train_size=self.train_size,
                                                                 shuffle=True,
                                                                 random_state=42)

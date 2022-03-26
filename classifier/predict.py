@@ -1,7 +1,5 @@
-from .utils import DatasetPreparator
+from .prepare import DatasetPreparator
 from catboost import CatBoostClassifier
-import datetime
-
 
 class PredictClassifier:
     def __init__(self, data, path_to_model=None):

@@ -16,6 +16,8 @@
 ### Препроцессинг
 Для подачи файла для препроцессинга необходимо передать пути до файлов с флагом --data. Можно передавать множество файлов одинакового формата, в таком случае препроцессор сам выделит русскоязычные и англоязычные переходы и обработает их отдельно, а затем объединит результаты. Для пользовательского наименования обработанного файла есть флаг --file_name
 
+Подробнее о препроцессинге документов: [Препроцессинг](https://github.com/lmeribal/SEMSHIFTS/tree/main/preprocessing)
+
 Пример запуска препроцессинга:
 ```
 python main.py preprocess --data data/english_example.csv data/russian_exaple.csv --fname preprocessed.csv
@@ -41,7 +43,8 @@ python main.py train --data data/preprocessed_data.csv --sampling_type up
 python main.py predict --data data/preprocessed_data.csv --class_model classification_model.cbm
 ```
 
-### Пайплайн тренировки
+### Пайплайн обучения
+
 
 ### Пайплайн оценки
 Пайплайн сочетает в себе предыдущие шаги

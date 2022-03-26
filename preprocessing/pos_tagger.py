@@ -3,15 +3,14 @@ import re
 from pymorphy2 import MorphAnalyzer
 # from russian_tagsets import converters
 
-
 class PosTagger:
     def __init__(self):
         self.russian_cached_dict = dict()
         self.russian_morph = MorphAnalyzer()
 
-    def rus_pos_tags_extractor(self, word):
+    def rus_pos_tags_extractor(self, phrase):
         # nltk.download('universal_tagset')
-        word = word[0]
+        word = phrase[0].split()[0]
         if word in self.russian_cached_dict:
             parsed = self.russian_cached_dict[word]
         else:

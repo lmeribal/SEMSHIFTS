@@ -1,5 +1,6 @@
 import argparse
-from preprocessing.preprocessor import DataPreprocessor, DatasetReader
+from preprocessing.preprocessor import DataPreprocessor
+from utils.utlis import Dataset
 from classifier.train import TrainClassifier
 from classifier.predict import PredictClassifier
 import datetime
@@ -11,6 +12,8 @@ pd.options.mode.chained_assignment = None
 # TODO: requirements.txt
 # TODO: пользовательские наименования колонок со смыслами
 
+# python main.py train_pipeline --data data/russian_example.csv data/english_example.csv --embed_model /Users/elisejzelihovskij/Desktop/semantic_shifts/multilungual/models/universal-sentence-encoder-multilingual_3
+# python main.py predict_pipeline --data data/unmarked_shifts.csv --class_model models/classification_model.cbm --embed_model /Users/elisejzelihovskij/Desktop/semantic_shifts/multilungual/models/universal-sentence-encoder-multilingual_3
 
 def main():
     parser = argparse.ArgumentParser(description='Arguments for SEMSHIFTS project')
@@ -30,8 +33,12 @@ def main():
     else:
         if args.data is None:
             raise Exception("You need to pass the path to the data")
-        if not os.path.exists(args.data):
-            raise FileNotFoundError(f"No such file or directory: {args.data}")
+        if isinstance(args.data, list):
+            if not os.path.exists(args.data[0][0]):
+                raise FileNotFoundError(f"No such file or directory: {args.data}")
+        elif isinstance(args.data, str):
+            if not os.path.exists(args.data):
+                raise FileNotFoundError(f"No such file or directory: {args.data}")
         if args.sampling_type not in [None, 'up', 'down']:
             raise Exception(f"The sampling_type argument can take the values 'up' or 'down', not {args.sampling_type}")
         if args.embed_model is not None and not os.path.exists(args.embed_model):
@@ -43,8 +50,8 @@ def main():
         train_classifier = TrainClassifier(args.data[0][0], model_name=args.model_name)
         train_classifier.training(sampling_type=args.sampling_type)
     elif args.action.lower() == 'preprocess':
-        data_reader = DatasetReader(args.data[0])
-        df = data_reader.concat_data()
+        data_reader = Dataset(args.data[0])
+        df = data_reader.read_data()
         preprocessor = DataPreprocessor(df, args.embed_model)
         preprocessed_data = preprocessor.fit_transform()
         if args.file_name is None:
@@ -58,11 +65,19 @@ def main():
     elif args.action.lower() == 'cluster':
         pass
     elif args.action.lower() == 'train_pipeline':
-        pass
+        print("Reading the data...")
+        data_reader = Dataset(args.data[0])
+        df = data_reader.read_data()
+        print("Preprocessing the data...")
+        preprocessor = DataPreprocessor(df, args.embed_model)
+        preprocessed_data = preprocessor.fit_transform()
+        print("Training...")
+        train_classifier = TrainClassifier(preprocessed_data, model_name=args.model_name)
+        train_classifier.training(sampling_type=args.sampling_type)
     elif args.action.lower() == 'predict_pipeline':
         print("Reading the data...")
-        data_reader = DatasetReader(args.data[0])
-        df = data_reader.concat_data()
+        data_reader = Dataset(args.data[0])
+        df = data_reader.read_data()
         print("Preprocessing the data...")
         preprocessor = DataPreprocessor(df, args.embed_model)
         preprocessed_data = preprocessor.fit_transform()

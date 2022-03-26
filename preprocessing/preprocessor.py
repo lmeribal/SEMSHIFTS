@@ -1,48 +1,9 @@
 from rapidfuzz import fuzz
 from scipy.spatial.distance import cosine
 import re
-import pandas as pd
 from .wordnet import WordnetFeatureExtractor
 from .pos_tagger import PosTagger
 from .vectorizer import Vectorizer
-
-
-# TODO: Наследовани Reader и Prepair от этого
-class Dataset:
-    def __init(self, path_to_dataset):
-        self.path_to_dataset = path_to_dataset
-
-    @staticmethod
-    def is_valid_data(dataset):
-        if 'sense_1' not in dataset.columns or 'sense_2' not in dataset.columns:
-            return 0
-        elif len(dataset) == 0:
-            return 0
-        return 1
-
-
-class DatasetReader:
-    def __init__(self, path_to_dataset):
-        self.path_to_dataset = path_to_dataset
-
-    @staticmethod
-    def is_valid_data(dataset):
-        if 'sense_1' not in dataset.columns or 'sense_2' not in dataset.columns:
-            return 0
-        elif len(dataset) == 0:
-            return 0
-        return 1
-
-    def concat_data(self):
-        # TODO: аргументы для чтения
-        result_df = pd.DataFrame()
-        for path in self.path_to_dataset:
-            data = pd.read_csv(path)
-            if self.is_valid_data(data):
-                result_df = result_df.append(data)
-            else:
-                raise Exception("Invalid data format")
-        return result_df
 
 
 class DataPreprocessor:
